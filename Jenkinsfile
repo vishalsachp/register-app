@@ -10,8 +10,8 @@ pipeline {
         APP_NAME = "register-app-pipeline"
         RELEASE  = "1.0.0"
         DOCKER_USER = "ashfaque9x"
-        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
-        IMAGE_TAG  = "${RELEASE}-${BUILD_NUMBER}"
+        IMAGE_NAME  = "${DOCKER_USER}/${APP_NAME}"
+        IMAGE_TAG   = "${RELEASE}-${BUILD_NUMBER}"
 
         JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
@@ -44,31 +44,24 @@ pipeline {
             }
         }
 
-        /* Commenting out SonarQube stage until SonarQube server is available
-        stage("SonarQube Analysis") {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh "mvn sonar:sonar"
-                }
-            }
-        }
-
-        stage("Quality Gate") {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-        */
+        /* SonarQube stages commented out until server is ready */
 
         stage("Build & Push Docker Image") {
             steps {
-                script {
-                    docker.withRegistry('', 'dockerhub-creds') {
-                        def dockerImage = docker.build("${IMAGE_NAME}")
-                        dockerImage.push("${IMAGE_TAG}")
-                        dockerImage.push("latest")
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
+                                                 usernameVariable: 'DOCKER_USER', 
+                                                 passwordVariable: 'DOCKER_PASS')]) {
+                    script {
+                        // Login to Docker Hub
+                        sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
+
+                        // Build Docker image
+                        sh "docker build -t ${IMAGE_NAME}:latest ."
+                        sh "docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${IMAGE_TAG}"
+
+                        // Push Docker image
+                        sh "docker push ${IMAGE_NAME}:latest"
+                        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                     }
                 }
             }
