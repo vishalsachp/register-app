@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "register-app-pipeline"
         RELEASE  = "1.0.0"
-        DOCKER_USER = "ashfaque9x"
+        DOCKER_USER = "vishalsachdeva371"  // Updated to your Docker Hub account
         IMAGE_NAME  = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG   = "${RELEASE}-${BUILD_NUMBER}"
 
@@ -44,7 +44,23 @@ pipeline {
             }
         }
 
-        /* SonarQube stages commented out until server is ready */
+        /* SonarQube stages commented out until server is ready
+        stage("SonarQube Analysis") {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh "mvn sonar:sonar"
+                }
+            }
+        }
+
+        stage("Quality Gate") {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        */
 
         stage("Build & Push Docker Image") {
             steps {
@@ -59,7 +75,7 @@ pipeline {
                         sh "docker build -t ${IMAGE_NAME}:latest ."
                         sh "docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${IMAGE_TAG}"
 
-                        // Push Docker image
+                        // Push Docker image to your Docker Hub account
                         sh "docker push ${IMAGE_NAME}:latest"
                         sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                     }
