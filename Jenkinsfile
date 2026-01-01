@@ -101,18 +101,7 @@ pipeline {
             }
         }
 
-        stage("Trigger CD Pipeline") {
-            steps {
-                sh """
-                curl -X POST \
-                --user clouduser:${JENKINS_API_TOKEN} \
-                http://ec2-13-232-128-192.ap-south-1.compute.amazonaws.com:8080/job/gitops-register-app-cd/buildWithParameters \
-                --data IMAGE_TAG=${IMAGE_TAG} \
-                --data token=gitops-token
-                """
-            }
-        }
-    }
+     
 
     post {
         failure {
