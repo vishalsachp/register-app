@@ -44,6 +44,7 @@ pipeline {
             }
         }
 
+        /* Commenting out SonarQube stage until SonarQube server is available
         stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -59,6 +60,7 @@ pipeline {
                 }
             }
         }
+        */
 
         stage("Build & Push Docker Image") {
             steps {
