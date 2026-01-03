@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "register-app-pipeline"
         RELEASE  = "1.0.0"
-        DOCKER_USER = "vishalsachdeva371"  // Updated to your Docker Hub account
+        DOCKER_USER = "vishalsachdeva371"
         IMAGE_NAME  = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG   = "${RELEASE}-${BUILD_NUMBER}"
 
@@ -44,7 +44,7 @@ pipeline {
             }
         }
 
-        /* SonarQube stages commented out until server is ready
+        /* SonarQube stages commented out
         stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -64,18 +64,15 @@ pipeline {
 
         stage("Build & Push Docker Image") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
-                                                 usernameVariable: 'DOCKER_USER', 
-                                                 passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
                     script {
-                        // Login to Docker Hub
                         sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
-
-                        // Build Docker image
                         sh "docker build -t ${IMAGE_NAME}:latest ."
                         sh "docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${IMAGE_TAG}"
-
-                        // Push Docker image to your Docker Hub account
                         sh "docker push ${IMAGE_NAME}:latest"
                         sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                     }
@@ -101,7 +98,7 @@ pipeline {
             }
         }
 
-     
+    }  // ✅ MISSING BRACE WAS HERE
 
     post {
         failure {
